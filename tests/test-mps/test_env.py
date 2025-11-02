@@ -301,7 +301,7 @@ class TestEnvironmentDocumentation:
         try:
             from langchain_community.vectorstores import FAISS  # noqa: F401
             # from langchain.text_splitter import (  # noqa: F401
-                RecursiveCharacterTextSplitter)
+            #    RecursiveCharacterTextSplitter)
             from sentence_transformers import (  # noqa: F401
                 SentenceTransformer)
         except ImportError as e:
