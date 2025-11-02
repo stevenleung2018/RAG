@@ -36,7 +36,7 @@ dependencies:
     - torchaudio==2.5.1+cu121
     
     # LLM and NLP stack
-    - transformers>=4.40
+    - transformers
     - sentence-transformers==3.0.1
     - accelerate==1.11.0
     - bitsandbytes==0.46.1
