@@ -1,0 +1,123 @@
+name: Environment Tests
+
+on:
+  push:
+    branches: [ main, steven, develop ]
+    paths:
+      - 'env_*.yml'
+      - 'env_*.yaml'
+      - '.github/workflows/env-test.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'env_*.yml'
+      - 'env_*.yaml'
+  workflow_dispatch:
+
+jobs:
+  test-env-cpu:
+    name: Verify env_cpu.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge,pytorch
+          auto-activate-base: true
+
+      - name: Create environment
+        run: |
+          conda env create -f env_cpu.yaml --name test-cpu
+          conda run -n test-cpu pip install pytest
+
+      - name: Verify PyTorch installation
+        run: |
+          conda run -n test-cpu python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
+
+      - name: Verify key packages
+        run: |
+          conda run -n test-cpu python -c "import transformers; import langchain; import pymupdf; import faiss; print('✓ All key packages imported successfully')"
+
+  test-env-mps:
+    name: Verify env_mps.yml
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge,pytorch
+          auto-activate-base: true
+
+      - name: Create environment
+        run: |
+          conda env create -f env_mps.yml --name test-mps
+          conda run -n test-mps pip install pytest
+
+      - name: Verify PyTorch installation
+        run: |
+          conda run -n test-mps python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'MPS available: {torch.backends.mps.is_available()}')"
+
+      - name: Verify key packages
+        run: |
+          conda run -n test-mps python -c "import transformers; import langchain; import pymupdf; import faiss; print('✓ All key packages imported successfully')"
+
+  test-env-cuda:
+    name: Verify env_cuda.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge
+          auto-activate-base: true
+
+      - name: Create environment (with cache cleanup)
+        run: |
+          conda clean --all --yes
+          conda env create -f env_cuda.yml --name test-cuda
+          conda run -n test-cuda pip install pytest
+
+      - name: Verify PyTorch installation
+        run: |
+          conda run -n test-cuda python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA compiled: {\"cu\" in torch.__version__}')"
+
+      - name: Verify key packages
+        run: |
+          conda run -n test-cuda python -c "import transformers; import langchain; import pymupdf; import faiss; print('✓ All key packages imported successfully')"
+
+  run-test-suite-cuda:
+    name: Run Test Suite (CUDA environment)
+    runs-on: ubuntu-latest
+    needs: test-env-cuda
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge
+          auto-activate-base: true
+
+      - name: Create environment
+        run: |
+          conda clean --all --yes
+          conda env create -f env_cuda.yml --name test-cuda
+          conda run -n test-cuda pip install pytest
+
+      - name: Run pytest
+        run: |
+          conda run -n test-cuda python -m pytest tests/ -v --tb=short
