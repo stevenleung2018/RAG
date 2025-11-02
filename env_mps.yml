@@ -1,0 +1,26 @@
+name: rag
+channels:
+  - conda-forge
+  - pytorch
+  - huggingface
+dependencies:
+  - python=3.11
+  - pytorch=2.5
+  - torchvision
+  - torchaudio
+  - transformers=4.54
+  - tokenizers
+  - accelerate
+  - requests
+  - pip
+  - pip:
+    - pymupdf  # for fitz
+    - langchain
+    - langchain-huggingface
+    - langchain-community
+    - faiss-cpu  # or faiss-gpu if you have GPU support for FAISS
+    - sentence-transformers
+    - bitsandbytes
+    - ipykernel
+    - ipython
+    - ipywidgets
