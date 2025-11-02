@@ -28,8 +28,6 @@ dependencies:
   - pyyaml=6.0.3
   - requests
   
-  - pip
-
   - pip:
     # Install CUDA PyTorch wheels from official PyTorch index
     - --index-url https://download.pytorch.org/whl/cu121
