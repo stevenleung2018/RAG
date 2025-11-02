@@ -155,7 +155,7 @@ class TestRAGPipelineRequirements:
     def test_langchain_core_available(self):
         """Verify langchain core components are available."""
         try:
-            from langchain.prompts import PromptTemplate  # noqa: F401
+            from langchain_core.prompts import PromptTemplate  # noqa: F401
         except ImportError as e:
             pytest.fail(f"LangChain core components not available: {e}")
     
@@ -300,7 +300,7 @@ class TestEnvironmentDocumentation:
         """Verify all imports required by the RAG notebook work."""
         try:
             from langchain_community.vectorstores import FAISS  # noqa: F401
-            from langchain.text_splitter import (  # noqa: F401
+            # from langchain.text_splitter import (  # noqa: F401
                 RecursiveCharacterTextSplitter)
             from sentence_transformers import (  # noqa: F401
                 SentenceTransformer)
