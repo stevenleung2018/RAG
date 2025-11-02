@@ -1,4 +1,4 @@
-# test_env_cuda.py
+# test_env.py
 
 # This script is for testing by GitHub CI to make sure that the env_cuda.yml file actually works
 
