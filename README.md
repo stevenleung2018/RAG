@@ -2,6 +2,25 @@
 
 This is a simple RAG (Retrieval-Augmented Generation) system that uses a vector database to store and retrieve documents. It is designed to be easy to use and extend.
 
+## Installation
+
+To set up the rag environment, choose the appropriate YAML for your hardware:
+
+For most users, use env_cpu.yml
+For Macs with Apple Silicon, use env_mps.yml
+For systems with NVIDIA GPUs, use env_cuda.yml
+Create the environment with:
+
+```{bash}
+conda env create -f env_cpu.yml  # Or env_mps.yml / env_cuda.yml
+```
+
+Activate with:
+
+```{bash}
+conda activate rag
+```
+
 # Context documents
 
 Here are some example documents that can be used with the RAG system.  Please download and save them in the `docs` directory.

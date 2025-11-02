@@ -1,0 +1,112 @@
+name: CI - RAG Application Tests
+
+on:
+  push:
+    branches: [ main, steven, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test-cpu:
+    name: Test on CPU (Ubuntu)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge,pytorch
+          channel-priority: strict
+          auto-activate-base: true
+
+      - name: Create conda environment from env_cpu.yaml
+        run: |
+          conda env create -f env_cpu.yaml --name rag-ci
+          conda run -n rag-ci pip install pytest
+
+      - name: Run tests
+        run: |
+          conda run -n rag-ci python -m pytest tests/test-cpu/ -v --tb=short
+
+  test-mps:
+    name: Test on MPS (macOS)
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge,pytorch
+          channel-priority: strict
+          auto-activate-base: true
+
+      - name: Create conda environment from env_mps.yml
+        run: |
+          conda env create -f env_mps.yml --name rag-ci
+          conda run -n rag-ci pip install pytest
+
+      - name: Run tests
+        run: |
+          conda run -n rag-ci python -m pytest tests/test-mps/ -v --tb=short
+
+  test-cuda:
+    name: Test on CUDA (Ubuntu with GPU)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          miniconda-version: latest
+          channels: conda-forge
+          channel-priority: strict
+          auto-activate-base: true
+
+      - name: Create conda environment from env_cuda.yml
+        run: |
+          conda clean --all --yes
+          conda env create -f env_cuda.yml --name rag-ci
+          conda run -n rag-ci pip install pytest
+
+      - name: Run tests
+        run: |
+          conda run -n rag-ci python -m pytest tests/test-cuda/ -v --tb=short
+
+  lint:
+    name: Lint and Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint black flake8
+
+      - name: Run black (code formatting check)
+        run: black --check --diff src/ tests/
+        continue-on-error: true
+
+      - name: Run flake8 (linting)
+        run: flake8 src/ tests/ --count --show-source --statistics
+        continue-on-error: true
