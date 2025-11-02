@@ -32,7 +32,7 @@ jobs:
 
       - name: Run tests
         run: |
-          conda run -n rag-ci python -m pytest tests/ -v --tb=short
+          conda run -n rag-ci python -m pytest tests/test-cpu/ -v --tb=short
 
   test-mps:
     name: Test on MPS (macOS)
@@ -58,7 +58,7 @@ jobs:
 
       - name: Run tests
         run: |
-          conda run -n rag-ci python -m pytest tests/ -v --tb=short
+          conda run -n rag-ci python -m pytest tests/test-mps/ -v --tb=short
 
   test-cuda:
     name: Test on CUDA (Ubuntu with GPU)
@@ -85,7 +85,7 @@ jobs:
 
       - name: Run tests
         run: |
-          conda run -n rag-ci python -m pytest tests/ -v --tb=short
+          conda run -n rag-ci python -m pytest tests/test-cuda/ -v --tb=short
 
   lint:
     name: Lint and Code Quality
