@@ -35,7 +35,7 @@ jobs:
           conda run -n rag-ci python -m pytest tests/test-mps/ -v --tb=short
 
   test-cuda:
-    name: Test on CUDA (Ubuntu with GPU)
+    name: Test on CUDA (installation only)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
