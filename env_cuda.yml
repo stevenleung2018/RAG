@@ -1,53 +1,26 @@
-name: rag_cuda_test
+name: rag
 channels:
   - conda-forge
+  - pytorch
+  - huggingface
 dependencies:
-  # Core Python and runtime
-  - python=3.12.12
-  - pip=25.2
-  - wheel=0.45.1
-  - setuptools=75.8.2
-  
-  # Numerical/Scientific
-  - numpy<2
-  - scipy=1.16.3
-  - pandas=2.3.3
-  - scikit-learn=1.7.2
-  
-  # Development/Jupyter
-  - jupyter_core=5.9.1
-  - jupyter_client=8.6.3
-  - ipykernel=7.1.0
-  - ipython=9.6.0
-  - debugpy=1.8.17
-  
-  # System/Utilities
-  - ca-certificates=2025.10.5
-  - openssl=3.5.4
-  - libffi=3.5.2
-  - pyyaml=6.0.3
+  - python=3.11
+  - pytorch=2.5
+  - torchvision
+  - torchaudio
+  - transformers=4.54
+  - tokenizers
+  - accelerate
   - requests
-  
+  - pip
   - pip:
-    # Install CUDA PyTorch wheels from official PyTorch index
-    - --index-url https://download.pytorch.org/whl/cu121
-    - torch==2.5.1+cu121
-    - torchvision==0.20.1+cu121
-    - torchaudio==2.5.1+cu121
-    
-    # LLM and NLP stack
-    - transformers
-    - sentence-transformers==3.0.1
-    - accelerate==1.11.0
-    - bitsandbytes==0.46.1
-    - tokenizers==0.21.4
-    
-    # LangChain ecosystem
-    - langchain==1.0.2
-    - langchain-core==1.0.1
-    - langchain-community==0.4.1
-    - langchain-huggingface==1.0.0
-    
-    # Vector DB and PDF processing
-    - faiss-cpu==1.8.0
-    - pymupdf==1.26.3
+    - pymupdf  # for fitz
+    - langchain
+    - langchain-huggingface
+    - langchain-community
+    - faiss-cpu  # or faiss-gpu if you have GPU support for FAISS
+    - sentence-transformers
+    - bitsandbytes
+    - ipykernel
+    - ipython
+    - ipywidgets
