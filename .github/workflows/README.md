@@ -20,11 +20,6 @@ The workflows are automatically triggered by:
    - Tests each environment independently
    - Runs full test suite if all environments valid
 
-3. **quick-test.yml** - Fast feedback workflow
-   - Runs on every push/PR
-   - Uses CPU-only PyTorch for speed
-   - Uploads test artifacts
-
 ## Test Results
 
 View test results in the **Actions** tab of your GitHub repository.
