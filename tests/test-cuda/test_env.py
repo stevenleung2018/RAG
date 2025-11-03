@@ -33,7 +33,7 @@ def test_pytorch_cuda_support():
         print(f"  - CUDA device count: {torch.cuda.device_count()}")
     # The test passes if either CUDA is available or PyTorch
     # was compiled with CUDA support
-    assert "cu" in torch.__version__ or cuda_available
+    assert torch.version.cuda is not None or cuda_available
 
 
 def test_mps_availability():
