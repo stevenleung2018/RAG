@@ -1,19 +1,19 @@
 name: rag
 channels:
   - conda-forge
-  - pytorch
   - huggingface
 dependencies:
   - python=3.12
-  - pytorch=2.5
-  - torchvision
-  - torchaudio
   - transformers=4.54
   - tokenizers
   - accelerate
   - requests
   - pip
   - pip:
+    - torch==2.5.1+cu124 # please change to your cuda version, e.g., cu118, cu121, cu124
+    - torchvision
+    - torchaudio
+    - --index-url https://download.pytorch.org/whl/cu124 # please change to your cuda version, e.g., cu118, cu121, cu124
     - pymupdf  # for fitz
     - langchain
     - langchain-huggingface
@@ -24,3 +24,6 @@ dependencies:
     - ipykernel
     - ipython
     - ipywidgets
+    - raghilda
+    - chatlas
+    - orjson
