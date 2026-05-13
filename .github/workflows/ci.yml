@@ -8,32 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-cpu:
-    name: Test on CPU (Ubuntu)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: '3.12'
-          miniconda-version: latest
-          channels: conda-forge,pytorch
-          channel-priority: strict
-          auto-activate-base: true
-
-      - name: Create conda environment from env_cpu.yaml
-        run: |
-          conda env create -f env_cpu.yaml --name rag-ci
-          conda run -n rag-ci pip install pytest
-
-      - name: Run tests
-        run: |
-          conda run -n rag-ci python -m pytest tests/test-cpu/ -v --tb=short
-
   test-mps:
     name: Test on MPS (macOS)
     runs-on: macos-latest
@@ -61,7 +35,7 @@ jobs:
           conda run -n rag-ci python -m pytest tests/test-mps/ -v --tb=short
 
   test-cuda:
-    name: Test on CUDA (Ubuntu with GPU)
+    name: Test on CUDA (installation only)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

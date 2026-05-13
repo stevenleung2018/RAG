@@ -5,7 +5,38 @@
 import torch
 import sys
 import importlib
+import pytest
+import os
 
+def running_in_ci() -> bool:
+    return os.getenv("CI") in ("true", "1") or os.getenv("GITHUB_ACTIONS") == "true"
+
+@pytest.mark.skipif(running_in_ci(), reason="Skip runtime CUDA availability check on CI (no GPU/drivers)")
+def test_pytorch_cuda_runtime_available():
+    # This test requires a GPU + drivers; skip on CI
+    assert torch.cuda.is_available(), "Expected CUDA runtime available (GPU + drivers)"
+
+def test_pytorch_cuda_build_metadata():
+    # Always run: checks build-time CUDA support (packages) without requiring hardware
+    version = torch.__version__
+    cuda_version = getattr(torch.version, "cuda", None)
+    built_flag = False
+    try:
+        built_flag = torch.backends.cuda.is_built()
+    except Exception:
+        built_flag = False
+
+    has_cu_suffix = "+cu" in version
+    has_cuda_build = built_flag or (cuda_version is not None) or has_cu_suffix
+
+    print(f"torch.__version__ = {version}")
+    print(f"torch.version.cuda = {cuda_version!r}")
+    print(f"torch.backends.cuda.is_built() = {built_flag}")
+    assert has_cuda_build, (
+        "PyTorch does not appear to be built with CUDA support. "
+        f"torch.__version__={version}, torch.version.cuda={cuda_version}, "
+        f"torch.backends.cuda.is_built()={built_flag}"
+    )
 
 def test_python_version():
     """Test that Python 3.12 or compatible version is installed"""
@@ -22,25 +53,6 @@ def test_pytorch_installation():
     print(f"✓ PyTorch location: {torch.__file__}")
 
 
-def test_pytorch_cuda_support():
-    """Test that PyTorch has CUDA support (available or
-    compiled with CUDA)"""
-    # Check if CUDA is available
-    cuda_available = torch.cuda.is_available()
-    print(f"✓ CUDA available: {cuda_available}")
-    if cuda_available:
-        print(f"  - CUDA device: {torch.cuda.get_device_name(0)}")
-        print(f"  - CUDA device count: {torch.cuda.device_count()}")
-    # The test passes if either CUDA is available or PyTorch
-    # was compiled with CUDA support
-    assert "cu" in torch.__version__ or cuda_available
-
-
-def test_mps_availability():
-    """Test that MPS availability can be checked
-    (doesn't require it to be available)"""
-    mps_available = torch.backends.mps.is_available()
-    print(f"✓ MPS available: {mps_available}")
 
 
 def test_required_packages():

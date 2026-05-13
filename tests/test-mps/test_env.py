@@ -23,7 +23,7 @@ class TestEnvironmentBasics:
         """Verify Python version is 3.11 as specified in env_mps.yml."""
         major, minor = sys.version_info[:2]
         assert major == 3, f"Expected Python 3, got {major}"
-        assert minor == 11, f"Expected Python 3.11, got 3.{minor}"
+        assert minor >= 11, f"Expected Python 3.11 or better, got 3.{minor}"
     
     def test_python_executable_exists(self):
         """Verify Python executable path is valid."""

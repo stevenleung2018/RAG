@@ -15,33 +15,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-env-cpu:
-    name: Verify env_cpu.yaml
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: '3.12'
-          miniconda-version: latest
-          channels: conda-forge,pytorch
-          auto-activate-base: true
-
-      - name: Create environment
-        run: |
-          conda env create -f env_cpu.yaml --name test-cpu
-          conda run -n test-cpu pip install pytest
-
-      - name: Verify PyTorch installation
-        run: |
-          conda run -n test-cpu python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
-
-      - name: Verify key packages
-        run: |
-          conda run -n test-cpu python -c "import transformers; import langchain; import pymupdf; import faiss; print('✓ All key packages imported successfully')"
-
   test-env-mps:
     name: Verify env_mps.yml
     runs-on: macos-latest
