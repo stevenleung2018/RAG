@@ -14,8 +14,10 @@ Usage:
 """
 
 from pathlib import Path
+import inspect
 
 from dotenv import load_dotenv
+import torch
 
 from raghilda.store import DuckDBStore
 from raghilda.embedding import EmbeddingSentenceTransformers
@@ -27,6 +29,46 @@ load_dotenv()
 
 # Path to store the RAG database
 DB_PATH = Path(__file__).parent / "chatlas_docs.db"
+
+
+def get_best_device() -> torch.device:
+    """Select the best available compute device: CUDA, then MPS, then CPU."""
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def get_device_name(device: torch.device) -> str:
+    if device.type == "cuda":
+        try:
+            return torch.cuda.get_device_name(device.index or 0)
+        except Exception:
+            return "cuda"
+    return device.type
+
+
+def build_embedder(device: torch.device) -> EmbeddingSentenceTransformers:
+    embed_kwargs = {"model": "all-MiniLM-L6-v2"}
+    try:
+        signature = inspect.signature(EmbeddingSentenceTransformers)
+        if "device" in signature.parameters:
+            embed_kwargs["device"] = str(device)
+        elif "device_name" in signature.parameters:
+            embed_kwargs["device_name"] = str(device)
+        else:
+            print(
+                "Warning: EmbeddingSentenceTransformers does not expose a device parameter; "
+                "it may default to CPU or infer the device automatically."
+            )
+    except Exception:
+        print(
+            "Warning: Unable to inspect EmbeddingSentenceTransformers signature. "
+            "Attempting to instantiate without explicit device override."
+        )
+
+    return EmbeddingSentenceTransformers(**embed_kwargs)
 
 
 def build_rag_index():
@@ -44,10 +86,14 @@ def build_rag_index():
     links = [link for link in links if not link.lower().endswith(excluded_extensions)]
     print(f"Found {len(links)} pages to index.")
 
+    device = get_best_device()
+    device_name = get_device_name(device)
+    print(f"Using device: {device_name}")
+
     print("Creating RAG store and indexing documents...")
     store = DuckDBStore.create(
         location=str(DB_PATH),
-        embed=EmbeddingSentenceTransformers(model='all-MiniLM-L6-v2'),
+        embed=build_embedder(device),
         overwrite=True,
         name="chatlas_docs",
         title="Chatlas Documentation",
@@ -69,9 +115,14 @@ def create_chat_with_rag():
     """Create a chatlas chat with RAG tool registered."""
     from chatlas import ChatOllama  # type: ignore[reportMissingImports]
 
+    device = get_best_device()
+    device_name = get_device_name(device)
+    print(f"Detected best device: {device_name}")
+
     # Connect to existing store or build if it doesn't exist
     if DB_PATH.exists():
         print(f"Connecting to existing RAG store at {DB_PATH}")
+        print("If you want to rebuild the index using the detected accelerator, rerun with --rebuild.")
         store = DuckDBStore.connect(str(DB_PATH), read_only=True)
     else:
         print("RAG store not found. Building index first...")
